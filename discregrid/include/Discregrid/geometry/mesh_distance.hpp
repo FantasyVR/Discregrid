@@ -73,6 +73,8 @@ public:
 	// Requires a closed two-manifold mesh as input data.
 	// Thread-safe function.
 	double signedDistance(Eigen::Vector3d const& x) const;
+	double signedDistance(Eigen::Vector3d const& x, Eigen::Vector3d* nearest_point,
+		unsigned int* nearest_face, Eigen::Vector3d* normal)const;
 	double signedDistanceCached(Eigen::Vector3d const& x) const;
 
 	double unsignedDistance(Eigen::Vector3d const& x) const;

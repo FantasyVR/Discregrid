@@ -194,7 +194,46 @@ MeshDistance::callback(unsigned int node_index,
 		dist_candidate = std::sqrt(dist_candidate_2);
 	}
 }
+double MeshDistance::signedDistance(Eigen::Vector3d const & x, Eigen::Vector3d * nearest_point, unsigned int * nearest_face, Eigen::Vector3d* normal) const
+{
+	auto ne = NearestEntity{};
 
+	auto dist = distance(x, nearest_point, nearest_face, &ne);
+
+	auto &n = *normal;
+	switch (ne)
+	{
+	case NearestEntity::VN0:
+		n = vertex_normal(m_mesh.faceVertex(*nearest_face, 0));
+		break;
+	case NearestEntity::VN1:
+		n = vertex_normal(m_mesh.faceVertex(*nearest_face, 1));
+		break;
+	case NearestEntity::VN2:
+		n = vertex_normal(m_mesh.faceVertex(*nearest_face, 2));
+		break;
+	case NearestEntity::EN0:
+		n = edge_normal({ *nearest_face, 0 });
+		break;
+	case NearestEntity::EN1:
+		n = edge_normal({ *nearest_face, 1 });
+		break;
+	case NearestEntity::EN2:
+		n = edge_normal({ *nearest_face, 2 });
+		break;
+	case NearestEntity::FN:
+		n = face_normal(*nearest_face);
+		break;
+	default:
+		n.setZero();
+		break;
+	}
+
+	if ((x - *nearest_point).dot(n) < 0.0)
+		dist *= -1.0;
+
+	return dist;
+}
 double
 MeshDistance::signedDistance(Vector3d const& x) const
 {
