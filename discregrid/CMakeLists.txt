@@ -75,7 +75,12 @@ SOURCEGROUP(GEOMETRY)
 SOURCEGROUP(UTILITY)
 
 # OpenMP support.
-find_package(OpenMP REQUIRED)
+if(APPLE)
+	include(PatchOpenMPApple)
+else()
+	find_package(OpenMP REQUIRED)
+endif()
+
 if(OPENMP_FOUND)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -100,7 +105,7 @@ if(WIN32)
 	add_definitions(-D_USE_MATH_DEFINES)
 endif(WIN32)
 
-add_library(Discregrid STATIC
+set(DISCREGRID_SOURCE_FILES
 	${HEADERS}
 	${SOURCES}
 	${HEADERS_ACCELERATION}
@@ -113,6 +118,12 @@ add_library(Discregrid STATIC
 	${HEADERS_UTILITY}
 	${SOURCES_UTILITY}
 )
+
+if(BUILD_AS_SHARED_LIBS)
+	add_library(Discregrid SHARED ${DISCREGRID_SOURCE_FILES})
+else()
+	add_library(Discregrid ${DISCREGRID_SOURCE_FILES})
+endif()
 
 # Discregrid has the following dependencies.
 #add_dependencies(Discregrid
